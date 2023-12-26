@@ -132,6 +132,8 @@ class DLList
 		void pop_forward();
 
 private:
+
+	template<typename T>
 	class Node
 	{
 	public:
