@@ -1,12 +1,18 @@
 #include <iostream>
 #include "../SmartPointersDLList/DoubleLinkedList.h"
 
-
 int main()
 {
-	DLList<int> a;
-	a.push_back(10);
-
-	std::cout << a.to_string();
+	try
+	{
+		DLList<int> a{ 1,2,3 };
+		DLList<int> b{ 1,2,3,4 };
+		std::cout << (a == b);
+		std::cout << (a == a);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
 	return 0;
 }

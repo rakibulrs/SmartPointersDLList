@@ -41,20 +41,68 @@ bool operator!=(const DLList<T>& rha, const DLList<T>& lha) noexcept;
 template<typename T>
 class DLList
 {
-	private:
-		std::shared_ptr<Node<T>> head;
-		std::weak_ptr<Node<T>> tail;
-		
 	public:
 		/*
 		* @brief  Создает пустой объект класса DLList
 		*/
 		DLList();
+
 		/*
 		* @brief  Создает объект класса DLList по исходным данным
 		* @param list Элементы списка
 		*/
 		DLList(const std::initializer_list<T> list);
+
+		/*
+		* @brief Конструктор перемещения
+		* @param list Список для перемещения
+		*/
+		DLList(DLList<T>&& list);
+
+		/*
+		* @brief Конструктор копирования
+		* @param list Список для копирования
+		*/
+		DLList(const DLList<T>& list);
+
+		/*
+		* @brief Оператор копирования
+		* @param list Список для копирования
+		* @return Скопированный объект типа DLList
+		*/
+		DLList<T>& operator=(const DLList<T>& list);
+
+		/*
+		* @brief Оператор перемещение
+		* @param list Список для перемещения
+		* @return Перемещенный объект типа DLList
+		*/
+		DLList<T>& operator=(DLList<T>&& list) noexcept;
+
+		/*
+		* @brief Проверяет наличие эелементов в списке
+		* @return true если есть, false если нет
+		*/
+		bool has_elements() const noexcept;
+
+		/*
+		* @brief Проверяет отсутствие эелементов в списке
+		* @return true если есть, false если нет
+		*/
+		bool is_empty() const noexcept;
+
+		/*
+		* @brief Функция для преобразования списка в строку
+		* @return Строка, построенная по списку
+		*/
+		std::string to_string() const noexcept;
+
+		/**
+		* @brief Получение элемента находящегося на смещенни равном index от начала списка
+		* @param index Смещение относительно начала спика, на котором стоит искомый элемент
+		* @return Значение элемента, что находится на смещении index от начала
+		*/
+		T get(size_t index) const;
 
 		/*
 		* @brief Очистка списка
@@ -83,65 +131,61 @@ class DLList
 		*/
 		void pop_forward();
 
+private:
+	class Node
+	{
+	public:
 		/*
-		* @brief Проверяет наличие эелементов в списке
-		* @return true если есть, false если нет
+		@brief Создает новый объект класса Node
+		@param value Значение элемента
+		@param previous Предыдущий элемент
+		@param next Следующий элемент
 		*/
-		bool has_elements() const noexcept;
+		explicit Node(const T& value)
+			:value(value), previous(std::shared_ptr<Node<T>>(nullptr)), next(std::shared_ptr<Node<T>>(nullptr))
+		{
+		};
 
-		/*
-		* @brief Проверяет отсутствие эелементов в списке
-		* @return true если есть, false если нет
-		*/
-		bool is_empty() const noexcept;
+		std::shared_ptr<Node<T>> next;
+		std::weak_ptr<Node<T>> previous;
+		T value;
+	};
 
-		/*
-		* @brief Функция для преобразования списка в строку
-		* @return Строка, построенная по списку
-		*/
-		std::string to_string() const noexcept;
-
-		/*
-		* @brief Оператор копирования
-		* @param list Список для копирования
-		* @return Скопированный объект типа DLList
-		*/
-		DLList<T>& operator=(const DLList<T>& list);
-
-		/*
-		* @brief Оператор перемещение
-		* @param list Список для перемещения
-		* @return Перемещенный объект типа DLList
-		*/
-		DLList<T>& operator=(DLList<T>&& list) noexcept;
-
-		/*
-		* @brief Конструктор копирования
-		* @param list Список для копирования
-		*/
-		DLList(DLList<T>&& list);
-		/*
-		* @brief Конструктор перемещения
-		* @param list Список для перемещения
-		*/
-		DLList(const DLList<T>& list);
+	std::shared_ptr<Node<T>> head;
+	std::weak_ptr<Node<T>> tail;
 };
 
 
 template<typename T>
 inline DLList<T>::DLList()
-	: head(std::shared_ptr<Node<T>>(nullptr)), tail(std::shared_ptr<Node<T>>(nullptr))
+	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
 {
 }
 
 template<typename T>
 inline DLList<T>::DLList(const std::initializer_list<T> list)
-	: head(std::shared_ptr<Node<T>>(nullptr)), tail(std::shared_ptr<Node<T>>(nullptr))
+	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
 {
 	for (T item : list)
 	{
 		this->push_back(item);
 	}
+}
+
+template<typename T>
+inline T DLList<T>::get(size_t index) const
+{	
+	if (this->is_empty() || (index + 1) > this->size)
+	{
+		throw std::out_of_range("Incorrect index");
+	}
+
+	Node<T>* temp = this->head;
+	for (size_t i = 0; i < index; i++)
+	{
+		temp = head->next;
+	}
+	return temp->value;
 }
 
 template<typename T>
@@ -156,7 +200,7 @@ inline void DLList<T>::push_back(const T& value)
 {
 	std::weak_ptr<Node<T>> weak_tail(this->tail);
 	std::shared_ptr<Node<T>> new_element(new Node<T>(value));
-	new_element->prev = weak_tail;
+	new_element->previous = weak_tail;
 	if (this->has_elements())
 	{
 		this->tail.lock()->next = new_element;
@@ -175,7 +219,7 @@ inline void DLList<T>::push_forward(const T& value)
 	std::weak_ptr<Node<T>> weak(temp);
 	if (this->has_elements())
 	{
-		this->head->prev = std::move(weak);
+		this->head->previous = std::move(weak);
 		temp->next = std::move(this->head);
 		this->head = std::move(temp);
 	}
@@ -198,7 +242,7 @@ inline void DLList<T>::pop_back()
 			this->tail = std::shared_ptr<Node<T>>(nullptr);
 		}
 
-		this->tail = std::move(this->tail.lock()->prev);
+		this->tail = std::move(this->tail.lock()->previous);
 		this->tail.lock()->next = nullptr;
 	}
 }
@@ -214,7 +258,7 @@ inline void DLList<T>::pop_forward()
 			this->tail = std::shared_ptr<Node<T>>(nullptr);
 		}
 		this->head = std::move(this->head->next);
-		this->head->prev = std::shared_ptr<Node<T>>(nullptr);
+		this->head->previous = std::shared_ptr<Node<T>>(nullptr);
 	}
 }
 
@@ -223,11 +267,11 @@ inline std::string DLList<T>::to_string() const noexcept
 {
 	std::stringstream temp;
 	temp << "[ ";
-	auto curr = this->head.get();
-	while (curr != nullptr)
+	auto current = this->head.get();
+	while (current != nullptr)
 	{
-		temp << curr->value << " ";
-		curr = curr->next.get();
+		temp << current->value << " ";
+		current = current->next.get();
 	}
 	temp << "]";
 	return temp.str();
@@ -237,22 +281,29 @@ inline std::string DLList<T>::to_string() const noexcept
 template<typename T>
 inline DLList<T>& DLList<T>::operator=(const DLList<T>& list)
 {
-	DLList<T> temp(list);
-	std::swap(this->head, temp.head);
-	std::swap(this->tail, temp.tail);
+	if (*this != list)
+	{
+		DLList<T> temp(list);
+		std::swap(this->head, temp.head);
+		std::swap(this->tail, temp.tail);
+	}
 	return *this;
 }
 
 template<typename T>
 inline DLList<T>& DLList<T>::operator=(DLList<T>&& list) noexcept
 {
-	std::swap(this->head, list.head);
-	std::swap(this->tail, list.tail);
+	if (*this != list)
+	{
+		std::swap(this->head, list.head);
+		std::swap(this->tail, list.tail);
+	}
 	return *this;
 }
 
 template<typename T>
 inline DLList<T>::DLList(DLList<T>&& list)
+	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
 {
 	std::swap(this->head, list.head);
 	std::swap(this->tail, list.tail);
@@ -260,13 +311,14 @@ inline DLList<T>::DLList(DLList<T>&& list)
 
 template<typename T>
 inline DLList<T>::DLList(const DLList<T>& list)
+	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
 {
 	DLList<T> temp;
-	auto curr = list.head.get();
-	while (curr != nullptr)
+	auto current = list.head.get();
+	while (current != nullptr)
 	{
-		temp.push_back(curr->value);
-		curr = curr->next.get();
+		temp.push_back(current->value);
+		current = current->next.get();
 	}
 	std::swap(this->head, temp.head);
 	std::swap(this->tail, temp.tail);
@@ -285,32 +337,6 @@ inline bool DLList<T>::is_empty() const noexcept
 }
 
 template<typename T>
-class Node
-{
-public:
-	/*
-	@brief Создает новый объект класса Node
-	@param value Значение элемента
-	@param prev Предыдущий элемент
-	@param next Следующий элемент
-	*/
-	Node(T value);
-
-
-
-	std::shared_ptr<Node<T>> next;
-	std::weak_ptr<Node<T>> prev;
-
-	T value;
-};
-
-template<typename T>
-inline Node<T>::Node(T value)
-	:value(value), prev(std::shared_ptr<Node<T>>(nullptr)), next(std::shared_ptr<Node<T>>(nullptr))
-{
-}
-
-template<typename T>
 inline std::ostream& operator<<(std::ostream& os, const DLList<T>& list)
 {
 	return os << list.to_string();
@@ -319,6 +345,10 @@ inline std::ostream& operator<<(std::ostream& os, const DLList<T>& list)
 template<typename T>
 inline bool operator==(const DLList<T>& rha, const DLList<T>& lha) noexcept
 {
+	if (&lha == &rha)
+	{
+		return true;
+	}
 	return (lha.to_string() == rha.to_string());
 }
 
