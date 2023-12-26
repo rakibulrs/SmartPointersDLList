@@ -154,5 +154,19 @@ namespace Tests
 			Assert::IsTrue(list_1 == list_2);
 		}
 
+		TEST_METHOD(Find_ValidData_Success)
+		{
+			// arrange
+			DLList list_1{ 1, 2, -3, 34, -70 };
+
+			//act
+			int result_1 = list_1.find(-3);
+			int result_2 = list_1.find(13);
+
+			//assert
+			Assert::IsTrue(result_1);
+			Assert::IsFalse(result_2);
+		}
+
 	};
 }

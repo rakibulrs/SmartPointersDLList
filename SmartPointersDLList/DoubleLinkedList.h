@@ -98,6 +98,13 @@ class DLList
 		std::string to_string() const noexcept;
 
 		/**
+		* @brief Поиск элемента в списке
+		* @param element Элемент для поиска
+		* @return true - есть в спике, false - нет в списке
+		*/
+		bool find(size_t element) const noexcept;
+
+		/**
 		* @brief Получение элемента находящегося на смещенни равном index от начала списка
 		* @param index Смещение относительно начала спика, на котором стоит искомый элемент
 		* @return Значение элемента, что находится на смещении index от начала
@@ -278,6 +285,21 @@ inline std::string DLList<T>::to_string() const noexcept
 	temp << "]";
 	return temp.str();
 
+}
+
+template<typename T>
+inline bool DLList<T>::find(size_t element) const noexcept
+{
+	auto current = this->head.get();
+	while (current != nullptr)
+	{
+		if (current->value == element)
+		{
+			return true;
+		}
+		current = current->next.get();
+	}
+	return false;
 }
 
 template<typename T>
