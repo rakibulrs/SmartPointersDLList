@@ -162,6 +162,7 @@ private:
 
 	std::shared_ptr<Node<T>> head;
 	std::weak_ptr<Node<T>> tail;
+	size_t size;
 };
 
 
@@ -219,6 +220,7 @@ inline void DLList<T>::push_back(const T& value)
 		this->head = new_element;
 	}
 	this->tail = new_element;
+	this->size++;
 }
 
 template<typename T>
@@ -237,7 +239,7 @@ inline void DLList<T>::push_forward(const T& value)
 		this->tail = std::move(weak);
 		this->head = std::move(temp);
 	}
-
+	this->size++;
 }
 
 template<typename T>
@@ -253,6 +255,7 @@ inline void DLList<T>::pop_back()
 
 		this->tail = std::move(this->tail.lock()->previous);
 		this->tail.lock()->next = nullptr;
+		this->size--;
 	}
 }
 
@@ -268,6 +271,7 @@ inline void DLList<T>::pop_forward()
 		}
 		this->head = std::move(this->head->next);
 		this->head->previous = std::shared_ptr<Node<T>>(nullptr);
+		this->size--;
 	}
 }
 
@@ -310,6 +314,7 @@ inline DLList<T>& DLList<T>::operator=(const DLList<T>& list)
 		DLList<T> temp(list);
 		std::swap(this->head, temp.head);
 		std::swap(this->tail, temp.tail);
+		std::exchange(this->size, temp.size);
 	}
 	return *this;
 }
@@ -321,6 +326,7 @@ inline DLList<T>& DLList<T>::operator=(DLList<T>&& list) noexcept
 	{
 		std::swap(this->head, list.head);
 		std::swap(this->tail, list.tail);
+		std::exchange(this->size, list.size);
 	}
 	return *this;
 }
@@ -331,6 +337,7 @@ inline DLList<T>::DLList(DLList<T>&& list)
 {
 	std::swap(this->head, list.head);
 	std::swap(this->tail, list.tail);
+	std::exchange(this->size, list.size);
 }
 
 template<typename T>
@@ -346,6 +353,7 @@ inline DLList<T>::DLList(const DLList<T>& list)
 	}
 	std::swap(this->head, temp.head);
 	std::swap(this->tail, temp.tail);
+	std::exchange(this->size, temp.size);
 }
 
 template<typename T>
