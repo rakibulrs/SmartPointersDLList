@@ -3,9 +3,6 @@
 #include <memory>
 #include <sstream>
 
-template<typename T>
-class Node;
-
 template<typename T> class DLList;
 
 /**
@@ -35,74 +32,85 @@ bool operator==(const DLList<T>& rha, const DLList<T>& lha) noexcept;
 template<typename T>
 bool operator!=(const DLList<T>& rha, const DLList<T>& lha) noexcept;
 
-/*
+/**
 * @brief Класс, описывающий линейный двусвязный список
 */
 template<typename T>
 class DLList
 {
 	public:
-		/*
-		* @brief  Создает пустой объект класса DLList
-		*/
+		/**
+	* @brief  Создает пустой объект класса DLList
+	*/
 		DLList();
 
-		/*
+		/**
 		* @brief  Создает объект класса DLList по исходным данным
 		* @param list Элементы списка
 		*/
 		DLList(const std::initializer_list<T> list);
 
-		/*
-		* @brief Конструктор перемещения
-		* @param list Список для перемещения
-		*/
-		DLList(DLList<T>&& list);
-
-		/*
+		/**
 		* @brief Конструктор копирования
 		* @param list Список для копирования
 		*/
+		DLList(DLList<T>&& list);
+
+		/**
+		* @brief Конструктор перемещения
+		* @param list Список для перемещения
+		*/
 		DLList(const DLList<T>& list);
 
-		/*
+		/**
+		* @brief Деструктор класса, чистит память при удалении объекта
+		*/
+		~DLList();
+
+		/**
 		* @brief Оператор копирования
 		* @param list Список для копирования
 		* @return Скопированный объект типа DLList
 		*/
 		DLList<T>& operator=(const DLList<T>& list);
 
-		/*
+		/**
 		* @brief Оператор перемещение
 		* @param list Список для перемещения
 		* @return Перемещенный объект типа DLList
 		*/
 		DLList<T>& operator=(DLList<T>&& list) noexcept;
 
-		/*
+		/**
 		* @brief Проверяет наличие эелементов в списке
 		* @return true если есть, false если нет
 		*/
 		bool has_elements() const noexcept;
 
-		/*
+		/**
 		* @brief Проверяет отсутствие эелементов в списке
 		* @return true если есть, false если нет
 		*/
 		bool is_empty() const noexcept;
 
-		/*
+		/**
 		* @brief Функция для преобразования списка в строку
 		* @return Строка, построенная по списку
 		*/
 		std::string to_string() const noexcept;
 
 		/**
+		* @brief Получение длины списка
+		* @return Длина списка
+		*/
+		size_t get_size() const noexcept;
+
+		/**
 		* @brief Поиск элемента в списке
 		* @param element Элемент для поиска
 		* @return true - есть в спике, false - нет в списке
 		*/
-		bool find(size_t element) const noexcept;
+		bool find(const T& element) const noexcept;
 
 		/**
 		* @brief Получение элемента находящегося на смещенни равном index от начала списка
@@ -111,29 +119,29 @@ class DLList
 		*/
 		T get(size_t index) const;
 
-		/*
+		/**
 		* @brief Очистка списка
 		*/
 		void clean();
 
-		/*
+		/**
 		* @brief Добавления элемента в конец списка
 		* @param value Элемент для добавления
 		*/
 		void push_back(const T& value);
 
-		/*
+		/**
 		* @brief Добавления элемента в начало списка
 		* @param value Элемент для добавления
 		*/
 		void push_forward(const T& value);
 
-		/*
+		/**
 		* @brief Удаление элемента с конца списка
 		*/
 		void pop_back();
 
-		/*
+		/**
 		* @brief Удаление элемента с начала списка
 		*/
 		void pop_forward();
@@ -144,7 +152,7 @@ private:
 	class Node
 	{
 	public:
-		/*
+		/**
 		@brief Создает новый объект класса Node
 		@param value Значение элемента
 		@param previous Предыдущий элемент
@@ -160,6 +168,12 @@ private:
 		T value;
 	};
 
+	/**
+	* @brief Премещение приватных полей текущего класса с внешним
+	* @param list Список для перемещения полей
+	*/
+	void swap(DLList<T>& list);
+
 	std::shared_ptr<Node<T>> head;
 	std::weak_ptr<Node<T>> tail;
 	size_t size;
@@ -168,13 +182,13 @@ private:
 
 template<typename T>
 inline DLList<T>::DLList()
-	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
+	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }, size{0}
 {
 }
 
 template<typename T>
 inline DLList<T>::DLList(const std::initializer_list<T> list)
-	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
+	: DLList()
 {
 	for (T item : list)
 	{
@@ -190,7 +204,7 @@ inline T DLList<T>::get(size_t index) const
 		throw std::out_of_range("Incorrect index");
 	}
 
-	Node<T>* temp = this->head;
+	auto temp = this->head;
 	for (size_t i = 0; i < index; i++)
 	{
 		temp = head->next;
@@ -276,6 +290,14 @@ inline void DLList<T>::pop_forward()
 }
 
 template<typename T>
+inline void DLList<T>::swap(DLList<T>& list)
+{
+	std::swap(this->head, list.head);
+	std::swap(this->tail, list.tail);
+	std::exchange(this->size, list.size);
+}
+
+template<typename T>
 inline std::string DLList<T>::to_string() const noexcept
 {
 	std::stringstream temp;
@@ -292,16 +314,22 @@ inline std::string DLList<T>::to_string() const noexcept
 }
 
 template<typename T>
-inline bool DLList<T>::find(size_t element) const noexcept
+inline size_t DLList<T>::get_size() const noexcept
 {
-	auto current = this->head.get();
+	return this->size;
+}
+
+template<typename T>
+inline bool DLList<T>::find(const T& element) const noexcept
+{
+	auto current = this->head;
 	while (current != nullptr)
 	{
 		if (current->value == element)
 		{
 			return true;
 		}
-		current = current->next.get();
+		current = current->next;
 	}
 	return false;
 }
@@ -312,9 +340,7 @@ inline DLList<T>& DLList<T>::operator=(const DLList<T>& list)
 	if (*this != list)
 	{
 		DLList<T> temp(list);
-		std::swap(this->head, temp.head);
-		std::swap(this->tail, temp.tail);
-		std::exchange(this->size, temp.size);
+		this->swap(temp);
 	}
 	return *this;
 }
@@ -324,25 +350,21 @@ inline DLList<T>& DLList<T>::operator=(DLList<T>&& list) noexcept
 {
 	if (*this != list)
 	{
-		std::swap(this->head, list.head);
-		std::swap(this->tail, list.tail);
-		std::exchange(this->size, list.size);
+		this->swap(list);
 	}
 	return *this;
 }
 
 template<typename T>
 inline DLList<T>::DLList(DLList<T>&& list)
-	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
+	: DLList()
 {
-	std::swap(this->head, list.head);
-	std::swap(this->tail, list.tail);
-	std::exchange(this->size, list.size);
+	this->swap(list);
 }
 
 template<typename T>
 inline DLList<T>::DLList(const DLList<T>& list)
-	: head{ std::shared_ptr<Node<T>>(nullptr) }, tail{ std::shared_ptr<Node<T>>(nullptr) }
+	: DLList()
 {
 	DLList<T> temp;
 	auto current = list.head.get();
@@ -351,9 +373,13 @@ inline DLList<T>::DLList(const DLList<T>& list)
 		temp.push_back(current->value);
 		current = current->next.get();
 	}
-	std::swap(this->head, temp.head);
-	std::swap(this->tail, temp.tail);
-	std::exchange(this->size, temp.size);
+	this->swap(temp);
+}
+
+template<typename T>
+inline DLList<T>::~DLList()
+{
+	this->clean();
 }
 
 template<typename T>

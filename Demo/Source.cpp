@@ -7,8 +7,13 @@ int main()
 	{
 		DLList<int> a{ 1,2,3 };
 		DLList<int> b{ 1,2,3,4 };
-		std::cout << (a == b);
-		std::cout << (a == a);
+		b = a;
+		std::cout << a<<std::endl;
+		std::cout << b << std::endl;
+		a.push_back(10);
+		std::cout << a << std::endl;
+		std::cout << b << std::endl;
+		
 	}
 	catch (const std::exception& e)
 	{
