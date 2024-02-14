@@ -205,7 +205,7 @@ inline T DLList<T>::get(size_t index) const
 	auto temp = this->head;
 	for (size_t i = 0; i < index; i++)
 	{
-		temp = head->next;
+		temp = temp->next;
 	}
 	return temp->value;
 }
