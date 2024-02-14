@@ -6,143 +6,143 @@
 template<typename T> class DLList;
 
 /**
-* @brief Опрератор вывода.
-* @param os Поток вывода.
-* @param list Список для вывода.
-* @return Изменённый поток вывода.
+* @brief The output operator
+* @param os Output Stream
+* @param list Output list
+* @return Modified output stream
 */
 template<typename T>
 std::ostream& operator<< (std::ostream& os, const DLList<T>& list);
 
 /**
-* @brief Перегрузка оператора сравнения
-* @param rha Первый аргумент для сравнения
-* @param lha Второй аргумент для сравнения
-* @return true - равны, false не равны
+* @brief Overloading the comparison operator
+* @param rha The first argument for comparison
+* @param lha The second argument for comparison
+* @return true - equal, false are not equal
 */
 template<typename T>
 bool operator==(const DLList<T>& rha, const DLList<T>& lha) noexcept;
 
 /**
-* @brief Перегрузка оператора не равно
-* @param rha Первый аргумент для сравнения
-* @param lha Второй аргумент для сравнения
-* @return false - равны, true не равны
+@brief Operator overloading is not equal to
+@param rha The first argument for comparison
+@param lha The second argument for comparison
+@return false - equal, true are not equal
 */
 template<typename T>
 bool operator!=(const DLList<T>& rha, const DLList<T>& lha) noexcept;
 
-/**
-* @brief Класс, описывающий линейный двусвязный список
+/*
+@brief A class describing a linear doubly connected list
 */
 template<typename T>
 class DLList
 {
 	public:
 		/**
-	* @brief  Создает пустой объект класса DLList
-	*/
+		* @brief Creates an empty object of the DLList class
+		*/
 		DLList();
 
 		/**
-		* @brief  Создает объект класса DLList по исходным данным
-		* @param list Элементы списка
+		* @brief Creates an object of the DLList class based on the source data
+		* @param list List Items
 		*/
 		DLList(const std::initializer_list<T> list);
 
 		/**
-		* @brief Конструктор копирования
-		* @param list Список для копирования
+		* @brief The move constructor
+		* @param list The list to move
 		*/
 		DLList(DLList<T>&& list);
 
 		/**
-		* @brief Конструктор перемещения
-		* @param list Список для перемещения
+		* @brief Copy Constructor
+		* @param list The list to copy
 		*/
 		DLList(const DLList<T>& list);
 
 		/**
-		* @brief Деструктор класса, чистит память при удалении объекта
+		* @brief A class destructor that cleans memory when an object is deleted
 		*/
 		~DLList();
 
 		/**
-		* @brief Оператор копирования
-		* @param list Список для копирования
-		* @return Скопированный объект типа DLList
+		* @brief The copy operator
+		* @param list The list to copy
+		* @return The copied object of the DLList type
 		*/
 		DLList<T>& operator=(const DLList<T>& list);
 
 		/**
-		* @brief Оператор перемещение
-		* @param list Список для перемещения
-		* @return Перемещенный объект типа DLList
+		* @brief The move operator
+		* @param list The list to move
+		* @return A moved object of the DLList type
 		*/
 		DLList<T>& operator=(DLList<T>&& list) noexcept;
 
 		/**
-		* @brief Проверяет наличие эелементов в списке
-		* @return true если есть, false если нет
+		* @brief Checks for the presence of items in the list
+		* @return true if there is, false if not
 		*/
 		bool has_elements() const noexcept;
 
 		/**
-		* @brief Проверяет отсутствие эелементов в списке
-		* @return true если есть, false если нет
+		* @brief Checks for the absence of items in the list
+		* @return true if there is, false if not
 		*/
 		bool is_empty() const noexcept;
 
 		/**
-		* @brief Функция для преобразования списка в строку
-		* @return Строка, построенная по списку
+		* @brief A function for converting a list to a string
+		* @return A string based on a list
 		*/
 		std::string to_string() const noexcept;
 
 		/**
-		* @brief Получение длины списка
-		* @return Длина списка
+		* @brief Getting the size of the list
+		* @return The size of the list
 		*/
 		size_t get_size() const noexcept;
 
 		/**
-		* @brief Поиск элемента в списке
-		* @param element Элемент для поиска
-		* @return true - есть в спике, false - нет в списке
+		* @brief Searching for an item in the list
+		* @param element The element to search for
+		* @return true - is in the list, false - is not in the list
 		*/
 		bool find(const T& element) const noexcept;
 
 		/**
-		* @brief Получение элемента находящегося на смещенни равном index от начала списка
-		* @param index Смещение относительно начала спика, на котором стоит искомый элемент
-		* @return Значение элемента, что находится на смещении index от начала
+		* @brief Getting an element located at an offset equal to index from the beginning of the list
+		* @param index Offset relative to the beginning of the list where the desired item is located
+		* @return The value of the element that is at the index offset from the beginning
 		*/
 		T get(size_t index) const;
 
 		/**
-		* @brief Очистка списка
+		* @brief Clearing the list
 		*/
 		void clean();
 
 		/**
-		* @brief Добавления элемента в конец списка
-		* @param value Элемент для добавления
+		* @brief Adding an item to the end of the list
+		* @param value Element to add
 		*/
 		void push_back(const T& value);
 
 		/**
-		* @brief Добавления элемента в начало списка
-		* @param value Элемент для добавления
+		* @brief Adding an item to the top of the list
+		* @param value Element to add
 		*/
 		void push_forward(const T& value);
 
 		/**
-		* @brief Удаление элемента с конца списка
+		* @brief Deleting an item from the end of the list
 		*/
 		void pop_back();
 
 		/**
-		* @brief Удаление элемента с начала списка
+		* @brief Deleting an item from the beginning of the list
 		*/
 		void pop_forward();
 
@@ -153,10 +153,8 @@ private:
 	{
 	public:
 		/**
-		@brief Создает новый объект класса Node
-		@param value Значение элемента
-		@param previous Предыдущий элемент
-		@param next Следующий элемент
+		* @brief Initializes a new instance of the Node class
+		* @param value  The value of the element
 		*/
 		explicit Node(const T& value)
 			:value(value), previous(std::shared_ptr<Node<T>>(nullptr)), next(std::shared_ptr<Node<T>>(nullptr))
@@ -169,8 +167,8 @@ private:
 	};
 
 	/**
-	* @brief Премещение приватных полей текущего класса с внешним
-	* @param list Список для перемещения полей
+	* @brief Moving private fields of the current class with an external one
+	* @param list A list for moving fields
 	*/
 	void swap(DLList<T>& list);
 
